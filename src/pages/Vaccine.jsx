@@ -53,6 +53,18 @@ const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
     ));
   };
 
+  const handleDeleteSchedule = (id) => {
+    if (window.confirm('คุณต้องการลบกำหนดการทำวัคซีนนี้ใช่หรือไม่?')) {
+      setSchedules(schedules.filter(s => s.id !== id));
+    }
+  };
+
+  const handleChangeDate = (id, newDate) => {
+    setSchedules(schedules.map(s => 
+      s.id === id ? { ...s, scheduledDate: newDate } : s
+    ));
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="page-header">
@@ -148,7 +160,15 @@ const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
                   <td style={{fontWeight: 500}}>{schedule.pen}</td>
                   <td>{schedule.pigCount}</td>
                   <td>{schedule.vaccineName}</td>
-                  <td>{schedule.scheduledDate}</td>
+                  <td>
+                    <input 
+                      type="date" 
+                      value={schedule.scheduledDate} 
+                      onChange={(e) => handleChangeDate(schedule.id, e.target.value)}
+                      style={{padding: '4px', borderRadius: '4px', border: '1px solid #ccc', fontSize: '0.85rem', background: schedule.status === 'completed' ? '#f0f0f0' : 'white'}}
+                      disabled={schedule.status === 'completed'}
+                    />
+                  </td>
                   <td>
                     {schedule.status === 'completed' ? (
                       <span style={{color: 'var(--accent-green)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '4px'}}>
@@ -163,16 +183,22 @@ const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
                       </span>
                     )}
                   </td>
-                  <td>
+                  <td style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                     {schedule.status === 'pending' && (
                       <button 
                         onClick={() => markCompleted(schedule.id)}
                         className="btn-primary" 
                         style={{padding: '6px 12px', fontSize: '0.8rem', background: 'var(--accent-green)'}}
                       >
-                        ยืนยันการฉีด
+                        ยืนยันฉีด
                       </button>
                     )}
+                    <button 
+                      onClick={() => handleDeleteSchedule(schedule.id)}
+                      style={{background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.875rem'}}
+                    >
+                      ลบ
+                    </button>
                   </td>
                 </tr>
               ))}
