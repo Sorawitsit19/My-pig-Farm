@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import FeedManagement from './pages/FeedManagement';
+import FeedSales from './pages/FeedSales';
 import Breeding from './pages/Breeding';
 import Vaccine from './pages/Vaccine';
 import Pens from './pages/Pens';
@@ -42,6 +43,8 @@ function App() {
   ]);
   const [vaccineSchedules, setVaccineSchedules] = useState([]);
 
+  const [salesRecords, setSalesRecords] = useState([]);
+
   // ตรวจสอบสถานะการล็อกอิน
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -66,6 +69,7 @@ function App() {
           if (data.breedingRecords) setBreedingRecords(data.breedingRecords);
           if (data.vaccineList) setVaccineList(data.vaccineList);
           if (data.vaccineSchedules) setVaccineSchedules(data.vaccineSchedules);
+          if (data.salesRecords) setSalesRecords(data.salesRecords);
         }
         setDataLoaded(true);
       }, (error) => {
@@ -125,6 +129,12 @@ function App() {
     updateFirestore('vaccineSchedules', val);
   };
 
+  const handleSetSalesRecords = (newVal) => {
+    const val = typeof newVal === 'function' ? newVal(salesRecords) : newVal;
+    setSalesRecords(val);
+    updateFirestore('salesRecords', val);
+  };
+
   const handleLogout = async () => {
     try {
       if (bypassLogin) {
@@ -150,6 +160,12 @@ function App() {
                  feedStock={feedStock} setFeedStock={handleSetFeedStock} 
                  feedRecords={feedRecords} setFeedRecords={handleSetFeedRecords} 
                  pens={pens} 
+               />;
+      case 'sales':
+        return <FeedSales
+                 feedStock={feedStock} setFeedStock={handleSetFeedStock}
+                 salesRecords={salesRecords} setSalesRecords={handleSetSalesRecords}
+                 feedRecords={feedRecords} setFeedRecords={handleSetFeedRecords}
                />;
       case 'breeding': 
         return <Breeding records={breedingRecords} setRecords={handleSetBreedingRecords} />;
