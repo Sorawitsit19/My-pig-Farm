@@ -395,3 +395,27 @@ body {
     min-width: 500px;
   }
 }
+
+/* Logout Button Visibility */
+.mobile-logout-wrapper {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .desktop-logout-wrapper {
+    display: none !important;
+  }
+  .mobile-logout-wrapper {
+    display: block;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(0,0,0,0.1);
+    padding-bottom: 2rem;
+  }
+  .mobile-logout-btn {
+    width: 100%;
+    background: transparent;
+    color: var(--accent-red);
+    border: 1px solid var(--accent-red);
+  }
+}

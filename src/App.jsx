@@ -210,6 +210,11 @@ function App() {
       <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={handleLogout} />
       <main className="main-content">
         {renderPage()}
+        <div className="mobile-logout-wrapper">
+          <button onClick={handleLogout} className="btn-primary mobile-logout-btn">
+            ออกจากระบบ
+          </button>
+        </div>
       </main>
     </>
   );

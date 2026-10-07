@@ -59,7 +59,7 @@ const Sidebar = ({ activePage, setActivePage, onLogout }) => {
         ))}
       </nav>
       
-      <div style={{marginTop: 'auto', paddingTop: '1rem'}}>
+      <div className="desktop-logout-wrapper" style={{marginTop: 'auto', paddingTop: '1rem'}}>
         <button 
           onClick={onLogout}
           className="btn-primary" 
