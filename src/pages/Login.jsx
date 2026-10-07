@@ -25,9 +25,9 @@ const Login = ({ onBypass }) => {
       if (isSignUp) {
         if (err.code === 'auth/email-already-in-use') setError('อีเมลนี้ถูกใช้งานแล้ว');
         else if (err.code === 'auth/weak-password') setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
-        else setError('ไม่สามารถสร้างบัญชีได้ กรุณาตรวจสอบว่าเปิดใช้งาน Authentication ใน Firebase แล้วหรือยัง');
+        else setError(`เกิดข้อผิดพลาด: ${err.message}`);
       } else {
-        setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ได้สมัครสมาชิก');
+        setError(`ไม่สามารถเข้าสู่ระบบได้: ${err.message}`);
       }
     } finally {
       setLoading(false);
