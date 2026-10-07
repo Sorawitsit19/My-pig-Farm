@@ -42,8 +42,8 @@ function App() {
     'ไมโคพลาสมา'
   ]);
   const [vaccineSchedules, setVaccineSchedules] = useState([]);
-
   const [salesRecords, setSalesRecords] = useState([]);
+  const [breeders, setBreeders] = useState([]);
 
   // ตรวจสอบสถานะการล็อกอิน
   useEffect(() => {
@@ -70,6 +70,7 @@ function App() {
           if (data.vaccineList) setVaccineList(data.vaccineList);
           if (data.vaccineSchedules) setVaccineSchedules(data.vaccineSchedules);
           if (data.salesRecords) setSalesRecords(data.salesRecords);
+          if (data.breeders) setBreeders(data.breeders);
         }
         setDataLoaded(true);
       }, (error) => {
@@ -135,6 +136,12 @@ function App() {
     updateFirestore('salesRecords', val);
   };
 
+  const handleSetBreeders = (newVal) => {
+    const val = typeof newVal === 'function' ? newVal(breeders) : newVal;
+    setBreeders(val);
+    updateFirestore('breeders', val);
+  };
+
   const handleLogout = async () => {
     try {
       if (bypassLogin) {
@@ -154,7 +161,11 @@ function App() {
       case 'dashboard': 
         return <Dashboard feedStock={feedStock} pens={pens} />;
       case 'pens':
-        return <Pens pens={pens} setPens={handleSetPens} feedRecords={feedRecords} />;
+        return <Pens 
+                 pens={pens} setPens={handleSetPens} 
+                 feedRecords={feedRecords} 
+                 breeders={breeders} setBreeders={handleSetBreeders}
+               />;
       case 'feed': 
         return <FeedManagement 
                  feedStock={feedStock} setFeedStock={handleSetFeedStock} 
