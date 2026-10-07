@@ -159,7 +159,13 @@ function App() {
 
     switch(activePage) {
       case 'dashboard': 
-        return <Dashboard feedStock={feedStock} pens={pens} />;
+        return <Dashboard 
+                 feedStock={feedStock} 
+                 pens={pens} 
+                 breeders={breeders}
+                 vaccineSchedules={vaccineSchedules}
+                 breedingRecords={breedingRecords}
+               />;
       case 'pens':
         return <Pens 
                  pens={pens} setPens={handleSetPens} 

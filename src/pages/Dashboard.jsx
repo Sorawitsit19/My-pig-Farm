@@ -1,14 +1,47 @@
 import React from 'react';
 
-const Dashboard = ({ feedStock = [], pens = [] }) => {
-  // สร้างข้อมูลจำลองสำหรับปฏิทิน
-  const days = Array.from({length: 31}, (_, i) => i + 1);
-  const events = {
-    5: { type: 'vaccine', label: 'ฉีดวัคซีน คอก 1' },
-    12: { type: 'farrowing', label: 'กำหนดคลอด แม่พันธุ์ A' },
-    20: { type: 'vaccine', label: 'ฉีดวัคซีน คอก 3' },
-    25: { type: 'farrowing', label: 'กำหนดคลอด แม่พันธุ์ B' },
-  };
+const Dashboard = ({ feedStock = [], pens = [], breeders = [], vaccineSchedules = [], breedingRecords = [] }) => {
+  const today = new Date();
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay(); // 0 is Sunday
+  
+  const days = Array.from({length: daysInMonth}, (_, i) => i + 1);
+
+  // เตรียมข้อมูล event สำหรับปฏิทินในเดือนปัจจุบัน
+  const eventMap = {};
+  
+  vaccineSchedules.forEach(v => {
+    if (v.status !== 'pending' || !v.scheduledDate) return;
+    const date = new Date(v.scheduledDate);
+    if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+      const day = date.getDate();
+      if (!eventMap[day]) eventMap[day] = [];
+      eventMap[day].push({ type: 'vaccine', label: `วัคซีน ${v.pen}` });
+    }
+  });
+
+  breedingRecords.forEach(b => {
+    if (b.actualDate || !b.expectedDate) return;
+    const date = new Date(b.expectedDate);
+    if (date.getMonth() === currentMonth && date.getFullYear() === currentYear) {
+      const day = date.getDate();
+      if (!eventMap[day]) eventMap[day] = [];
+      eventMap[day].push({ type: 'farrowing', label: `คลอด ${b.motherId}` });
+    }
+  });
+
+  // คำนวณวัคซีนใน 7 วันข้างหน้า
+  const todayAtMidnight = new Date(today.setHours(0,0,0,0));
+  const nextWeek = new Date(todayAtMidnight);
+  nextWeek.setDate(todayAtMidnight.getDate() + 7);
+  
+  const vaccinesThisWeek = vaccineSchedules.filter(v => {
+    if (v.status !== 'pending' || !v.scheduledDate) return false;
+    const vDate = new Date(v.scheduledDate);
+    return vDate >= todayAtMidnight && vDate <= nextWeek;
+  }).length;
 
   // คำนวณจำนวนหมูรวมทั้งหมดจากทุกคอก
   const totalPigs = pens.reduce((sum, pen) => sum + pen.pigCount, 0);
@@ -17,7 +50,7 @@ const Dashboard = ({ feedStock = [], pens = [] }) => {
     <div className="animate-fade-in">
       <div className="page-header">
         <h1 className="page-title">ภาพรวมฟาร์ม (Dashboard)</h1>
-        <p className="page-subtitle">ดูสรุปข้อมูลทั้งหมดและปฏิทินกิจกรรม</p>
+        <p className="page-subtitle">ดูสรุปข้อมูลทั้งหมดและปฏิทินกิจกรรมแบบเรียลไทม์</p>
       </div>
 
       <div className="grid-cols-4" style={{ marginBottom: '2rem' }}>
@@ -42,12 +75,16 @@ const Dashboard = ({ feedStock = [], pens = [] }) => {
           <div className="stat-content" style={{width: '100%'}}>
             <h3>อาหารคงเหลือ</h3>
             <div style={{marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px'}}>
-              {feedStock.map(f => (
-                <div key={f.id} style={{fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '2px'}}>
-                  <span style={{color: 'var(--text-secondary)'}}>{f.name}</span>
-                  <strong style={{color: 'var(--text-primary)'}}>{f.stock} กระสอบ</strong>
-                </div>
-              ))}
+              {feedStock.length === 0 ? (
+                <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>ไม่มีข้อมูล</span>
+              ) : (
+                feedStock.map(f => (
+                  <div key={f.id} style={{fontSize: '0.85rem', display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '2px'}}>
+                    <span style={{color: 'var(--text-secondary)'}}>{f.name}</span>
+                    <strong style={{color: 'var(--text-primary)'}}>{f.stock} กระสอบ</strong>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
@@ -60,7 +97,7 @@ const Dashboard = ({ feedStock = [], pens = [] }) => {
           </div>
           <div className="stat-content">
             <h3>แม่พันธุ์ (ตัว)</h3>
-            <p>15</p>
+            <p>{breeders.length}</p>
           </div>
         </div>
 
@@ -72,13 +109,13 @@ const Dashboard = ({ feedStock = [], pens = [] }) => {
           </div>
           <div className="stat-content">
             <h3>วัคซีนสัปดาห์นี้</h3>
-            <p>2</p>
+            <p>{vaccinesThisWeek}</p>
           </div>
         </div>
       </div>
 
       <div className="glass-card">
-        <h2 style={{fontSize: '1.25rem', marginBottom: '1rem'}}>ปฏิทินงาน (เดือนนี้)</h2>
+        <h2 style={{fontSize: '1.25rem', marginBottom: '1rem'}}>ปฏิทินงาน ({today.toLocaleString('th-TH', { month: 'long', year: 'numeric' })})</h2>
         <div style={{display: 'flex', gap: '1rem', marginBottom: '1rem'}}>
           <span style={{fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '4px'}}>
             <span style={{display: 'inline-block', width: 12, height: 12, background: 'var(--accent-red)', borderRadius: '50%'}}></span> ฉีดวัคซีน
@@ -92,19 +129,19 @@ const Dashboard = ({ feedStock = [], pens = [] }) => {
           {['อา.', 'จ.', 'อ.', 'พ.', 'พฤ.', 'ศ.', 'ส.'].map(d => (
             <div key={d} className="calendar-day-header">{d}</div>
           ))}
-          {/* ข้ามวันแรกๆ เพื่อจำลองปฏิทินจริง */}
-          <div className="calendar-day" style={{visibility: 'hidden'}}></div>
-          <div className="calendar-day" style={{visibility: 'hidden'}}></div>
-          <div className="calendar-day" style={{visibility: 'hidden'}}></div>
+          {/* ข้ามวันแรกๆ ตามปฏิทินจริง */}
+          {Array.from({length: firstDayIndex}).map((_, i) => (
+            <div key={`empty-${i}`} className="calendar-day" style={{visibility: 'hidden'}}></div>
+          ))}
           
           {days.map(day => (
-            <div key={day} className={`calendar-day ${day === new Date().getDate() ? 'active' : ''}`}>
-              <span style={{fontWeight: day === new Date().getDate() ? 'bold' : 'normal'}}>{day}</span>
-              {events[day] && (
-                <div className={`calendar-event ${events[day].type}`}>
-                  {events[day].label}
+            <div key={day} className={`calendar-day ${day === today.getDate() ? 'active' : ''}`}>
+              <span style={{fontWeight: day === today.getDate() ? 'bold' : 'normal'}}>{day}</span>
+              {eventMap[day] && eventMap[day].map((evt, idx) => (
+                <div key={idx} className={`calendar-event ${evt.type}`} style={{marginTop: idx === 0 ? 'auto' : '2px'}}>
+                  {evt.label}
                 </div>
-              )}
+              ))}
             </div>
           ))}
         </div>

@@ -91,6 +91,12 @@ const Breeding = ({ records, setRecords }) => {
     setFormData({ motherId: '', matingDate: '' });
   };
 
+  const handleDeleteRecord = (id) => {
+    if (window.confirm('คุณต้องการลบกำหนดการนี้ใช่หรือไม่?')) {
+      setRecords(records.filter(r => r.id !== id));
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="page-header">
@@ -158,6 +164,7 @@ const Breeding = ({ records, setRecords }) => {
               <th>กำหนดคลอด</th>
               <th>เหลือเวลา (วัน)</th>
               <th>สถานะ / วันที่คลอดจริง</th>
+              <th>จัดการ</th>
             </tr>
           </thead>
           <tbody>
@@ -188,6 +195,14 @@ const Breeding = ({ records, setRecords }) => {
                       ลงบันทึกคลอดแล้ว
                     </button>
                   )}
+                </td>
+                <td>
+                  <button 
+                    onClick={() => handleDeleteRecord(record.id)}
+                    style={{background: 'none', border: 'none', color: 'var(--accent-red)', cursor: 'pointer', textDecoration: 'underline', fontSize: '0.875rem'}}
+                  >
+                    ลบ
+                  </button>
                 </td>
               </tr>
             ))}
