@@ -26,6 +26,53 @@ const Breeding = ({ records, setRecords }) => {
     e.preventDefault();
     if (!formData.motherId || !formData.matingDate) return;
 
+    // หาประวัติที่ยังไม่คลอดของแม่พันธุ์ตัวนี้
+    const activeRecordIndex = records.findIndex(r => r.motherId === formData.motherId && !r.actualDate);
+
+    if (activeRecordIndex !== -1) {
+      const oldRecord = records[activeRecordIndex];
+      const oldDate = new Date(oldRecord.matingDate);
+      const newDate = new Date(formData.matingDate);
+      const diffTime = newDate - oldDate;
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+      // ถ้าเป็นอดีต (ใส่วันที่ผิด)
+      if (diffDays < 0) {
+        alert('วันที่ผสมซ้ำต้องไม่ก่อนวันที่ผสมครั้งแรกครับ');
+        return;
+      }
+
+      if (diffDays <= 7) {
+        alert('พบการผสมซ้ำภายใน 7 วัน! ระบบจะยึด "วันคลอดจากวันที่ผสมครั้งแรก"');
+        // อัปเดตเพื่อบอกว่ามีการผสมซ้ำ แต่คงวันที่คลอดเดิม
+        const updatedRecords = [...records];
+        updatedRecords[activeRecordIndex] = {
+          ...oldRecord,
+          isRepeated: true,
+          repeatDate: formData.matingDate
+        };
+        setRecords(updatedRecords);
+        setFormData({ motherId: '', matingDate: '' });
+        return;
+      } else {
+        alert('พบการผสมซ้ำเกิน 7 วัน! ระบบจะ "เริ่มนับวันคลอดใหม่จากวันนี้"');
+        const expectedDate = calculateExpectedFarrowing(formData.matingDate);
+        const updatedRecords = [...records];
+        updatedRecords[activeRecordIndex] = {
+          ...oldRecord,
+          matingDate: formData.matingDate,
+          expectedDate: expectedDate,
+          daysLeft: calculateDaysLeft(expectedDate),
+          isRepeated: false,
+          repeatDate: null
+        };
+        setRecords(updatedRecords);
+        setFormData({ motherId: '', matingDate: '' });
+        return;
+      }
+    }
+
+    // กรณีเป็นแม่พันธุ์ใหม่ หรือแม่พันธุ์เดิมที่คลอดไปแล้ว
     const expectedDate = calculateExpectedFarrowing(formData.matingDate);
     const daysLeft = calculateDaysLeft(expectedDate);
 
@@ -35,7 +82,8 @@ const Breeding = ({ records, setRecords }) => {
       matingDate: formData.matingDate,
       expectedDate: expectedDate,
       daysLeft: daysLeft,
-      actualDate: null
+      actualDate: null,
+      isRepeated: false
     };
 
     setRecords([...records, newRecord]);
@@ -116,7 +164,14 @@ const Breeding = ({ records, setRecords }) => {
             {records.map(record => (
               <tr key={record.id}>
                 <td style={{fontWeight: 600}}>{record.motherId}</td>
-                <td>{record.matingDate}</td>
+                <td>
+                  {record.matingDate}
+                  {record.isRepeated && record.repeatDate && (
+                    <div style={{fontSize: '0.75rem', color: 'var(--accent-red)'}}>
+                      (ซ้ำ: {record.repeatDate})
+                    </div>
+                  )}
+                </td>
                 <td>{record.expectedDate}</td>
                 <td>
                   {record.daysLeft > 0 ? (
