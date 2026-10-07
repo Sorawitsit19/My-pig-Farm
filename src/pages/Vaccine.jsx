@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
+const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules, pens = [] }) => {
 
   const [formData, setFormData] = useState({
     pen: '',
@@ -9,6 +9,17 @@ const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
     customVaccine: '',
     scheduledDate: ''
   });
+
+  const handlePenChange = (e) => {
+    const selectedPenName = e.target.value;
+    const selectedPen = pens.find(p => p.name === selectedPenName);
+    
+    setFormData({
+      ...formData,
+      pen: selectedPenName,
+      pigCount: selectedPen ? selectedPen.pigCount : ''
+    });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -78,13 +89,16 @@ const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules }) => {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label>คอกสุกร</label>
-              <input 
-                type="text" 
-                className="form-input" 
-                placeholder="เช่น คอก 1"
+              <select 
+                className="form-select"
                 value={formData.pen}
-                onChange={e => setFormData({...formData, pen: e.target.value})}
-              />
+                onChange={handlePenChange}
+              >
+                <option value="">-- เลือกคอกสุกร --</option>
+                {pens.map(p => (
+                  <option key={p.id} value={p.name}>{p.name}</option>
+                ))}
+              </select>
             </div>
             
             <div className="form-group">

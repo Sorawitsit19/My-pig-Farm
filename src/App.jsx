@@ -184,6 +184,7 @@ function App() {
         return <Vaccine 
                  vaccineList={vaccineList} setVaccineList={handleSetVaccineList}
                  schedules={vaccineSchedules} setSchedules={handleSetVaccineSchedules}
+                 pens={pens}
                />;
       default: 
         return <Dashboard feedStock={feedStock} pens={pens} />;
