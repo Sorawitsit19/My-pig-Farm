@@ -1,23 +1,34 @@
 import React, { useState } from 'react';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const Login = ({ onBypass }) => {
+  const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
     } catch (err) {
       console.error(err);
-      setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือคุณยังไม่ได้ตั้งค่า Firebase');
+      if (isSignUp) {
+        if (err.code === 'auth/email-already-in-use') setError('อีเมลนี้ถูกใช้งานแล้ว');
+        else if (err.code === 'auth/weak-password') setError('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร');
+        else setError('ไม่สามารถสร้างบัญชีได้ กรุณาตรวจสอบว่าเปิดใช้งาน Authentication ใน Firebase แล้วหรือยัง');
+      } else {
+        setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง หรือยังไม่ได้สมัครสมาชิก');
+      }
     } finally {
       setLoading(false);
     }
@@ -42,7 +53,7 @@ const Login = ({ onBypass }) => {
           </div>
           <h1 style={{fontSize: '1.5rem', color: 'var(--primary-color)'}}>PiggyFarm ระบบจัดการฟาร์ม</h1>
           <p style={{color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '0.5rem'}}>
-            กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ
+            {isSignUp ? 'สร้างบัญชีผู้ใช้งานใหม่' : 'กรุณาเข้าสู่ระบบเพื่อดำเนินการต่อ'}
           </p>
         </div>
 
@@ -52,7 +63,7 @@ const Login = ({ onBypass }) => {
           </div>
         )}
 
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>อีเมล (Email)</label>
             <input 
@@ -73,19 +84,40 @@ const Login = ({ onBypass }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              minLength={6}
             />
           </div>
           <button 
             type="submit" 
             className="btn-primary" 
-            style={{width: '100%', marginTop: '1rem'}}
+            style={{width: '100%', marginTop: '1rem', background: isSignUp ? 'var(--accent-green)' : 'var(--primary-color)'}}
             disabled={loading}
           >
-            {loading ? 'กำลังเข้าสู่ระบบ...' : 'เข้าสู่ระบบ'}
+            {loading ? 'กำลังดำเนินการ...' : (isSignUp ? 'สมัครสมาชิก' : 'เข้าสู่ระบบ')}
           </button>
         </form>
         
-        <div style={{marginTop: '1rem', textAlign: 'center'}}>
+        <div style={{marginTop: '1.5rem', textAlign: 'center', borderTop: '1px solid rgba(0,0,0,0.1)', paddingTop: '1rem'}}>
+          <p style={{fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '0.5rem'}}>
+            {isSignUp ? 'มีบัญชีอยู่แล้ว?' : 'ยังไม่มีบัญชีใช่ไหม?'}
+          </p>
+          <button 
+            onClick={() => { setIsSignUp(!isSignUp); setError(''); }}
+            style={{
+              background: 'none', 
+              border: 'none', 
+              color: 'var(--primary-color)', 
+              fontWeight: 600,
+              textDecoration: 'underline', 
+              cursor: 'pointer',
+              fontSize: '0.875rem',
+              marginBottom: '1rem'
+            }}
+          >
+            {isSignUp ? 'กลับไปหน้าเข้าสู่ระบบ' : 'สร้างบัญชีใหม่'}
+          </button>
+          
+          <br/>
           <button 
             onClick={onBypass}
             style={{
@@ -94,10 +126,10 @@ const Login = ({ onBypass }) => {
               color: 'var(--text-secondary)', 
               textDecoration: 'underline', 
               cursor: 'pointer',
-              fontSize: '0.875rem'
+              fontSize: '0.8rem'
             }}
           >
-            ทดลองเข้าใช้งานชั่วคราว (ไม่ต้องล็อกอิน)
+            ทดลองเข้าใช้งานชั่วคราว (ข้ามการล็อกอิน)
           </button>
         </div>
       </div>

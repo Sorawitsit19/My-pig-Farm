@@ -86,6 +86,12 @@ const FeedManagement = ({ feedStock, setFeedStock, feedRecords, setFeedRecords, 
     }));
   };
 
+  const handleClearStock = (id) => {
+    if (window.confirm('คุณแน่ใจหรือไม่ว่าต้องการล้างสต็อกอาหารเบอร์นี้ให้เป็น 0?')) {
+      setFeedStock(feedStock.map(f => f.id === id ? { ...f, stock: 0 } : f));
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <div className="page-header">
@@ -117,6 +123,12 @@ const FeedManagement = ({ feedStock, setFeedStock, feedRecords, setFeedRecords, 
                       style={{width: 28, height: 28, borderRadius: '50%', border: 'none', background: 'rgba(16, 185, 129, 0.1)', color: 'var(--accent-green)', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'}}
                     >
                       +
+                    </button>
+                    <button 
+                      onClick={() => handleClearStock(feed.id)}
+                      style={{marginLeft: '4px', padding: '4px 8px', borderRadius: '4px', border: 'none', background: 'rgba(0,0,0,0.05)', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600}}
+                    >
+                      ล้าง (0)
                     </button>
                   </div>
                 </div>
