@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './FeedSales.css';
 
 const FeedSales = ({ feedStock, setFeedStock, salesRecords, setSalesRecords, feedRecords, setFeedRecords }) => {
   const [sellData, setSellData] = useState({

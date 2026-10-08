@@ -1,4 +1,5 @@
 import React from 'react';
+import './Dashboard.css';
 
 const Dashboard = ({ feedStock = [], pens = [], breeders = [], vaccineSchedules = [], breedingRecords = [] }) => {
   const today = new Date();

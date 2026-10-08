@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Breeding.css';
 
 const Breeding = ({ records, setRecords }) => {
 

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Pens.css';
 
 const Pens = ({ pens, setPens, feedRecords, breeders = [], setBreeders }) => {
   const [formData, setFormData] = useState({ name: '', pigCount: '' });

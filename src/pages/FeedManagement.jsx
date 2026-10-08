@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './FeedManagement.css';
 
 const FeedManagement = ({ feedStock, setFeedStock, feedRecords, setFeedRecords, pens }) => {
 

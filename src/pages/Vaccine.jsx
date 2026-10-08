@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './Vaccine.css';
 
 const Vaccine = ({ vaccineList, setVaccineList, schedules, setSchedules, pens = [] }) => {
 
