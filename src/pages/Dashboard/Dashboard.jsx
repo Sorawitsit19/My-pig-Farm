@@ -75,7 +75,7 @@ const Dashboard = ({ feedStock = [], pens = [], breeders = [], vaccineSchedules 
           </div>
           <div className="stat-content" style={{width: '100%'}}>
             <h3>อาหารคงเหลือ</h3>
-            <div style={{marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px'}}>
+            <div style={{marginTop: '4px', display: 'flex', flexDirection: 'column', gap: '4px', maxHeight: '100px', overflowY: 'auto', paddingRight: '4px'}}>
               {feedStock.length === 0 ? (
                 <span style={{fontSize: '0.8rem', color: 'var(--text-secondary)'}}>ไม่มีข้อมูล</span>
               ) : (
