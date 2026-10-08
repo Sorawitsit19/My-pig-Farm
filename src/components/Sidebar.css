@@ -10,6 +10,12 @@
   flex-direction: column;
   gap: 2rem;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 40;
+  overflow-y: auto;
 }
 
 .logo-container {
@@ -74,12 +80,13 @@
 @media (max-width: 900px) {
   .sidebar {
     width: 100%;
+    height: auto;
     padding: 1rem;
     border-right: none;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     gap: 1rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    z-index: 10;
+    z-index: 40;
   }
 
   .logo-container {
