@@ -44,13 +44,19 @@ const Breeding = ({ records, setRecords }) => {
       }
 
       if (diffDays <= 7) {
-        alert('พบการผสมซ้ำภายใน 7 วัน! ระบบจะยึด "วันคลอดจากวันที่ผสมครั้งแรก"');
-        // อัปเดตเพื่อบอกว่ามีการผสมซ้ำ แต่คงวันที่คลอดเดิม
+        alert('พบการผสมซ้ำภายใน 7 วัน! ระบบจะคำนวณวันคลอดใหม่ โดยเริ่มนับจาก "วันถัดไปหลังจากผสมซ้ำ" ไปอีก 114 วัน');
+        // วันถัดไปหลังจากผสมซ้ำ
+        const nextDayAfterRepeat = new Date(formData.matingDate);
+        nextDayAfterRepeat.setDate(nextDayAfterRepeat.getDate() + 1);
+        const expectedDate = calculateExpectedFarrowing(nextDayAfterRepeat.toISOString().split('T')[0]);
+        
         const updatedRecords = [...records];
         updatedRecords[activeRecordIndex] = {
           ...oldRecord,
           isRepeated: true,
-          repeatDate: formData.matingDate
+          repeatDate: formData.matingDate,
+          expectedDate: expectedDate,
+          daysLeft: calculateDaysLeft(expectedDate)
         };
         setRecords(updatedRecords);
         setFormData({ motherId: '', matingDate: '' });
